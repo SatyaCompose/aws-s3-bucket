@@ -50,21 +50,18 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
 
         const fileName = `sitemap.xml`;
 
-        await s3Client.putObject({
+        const data = await s3Client.putObject({
             Bucket: bucketName,
             Key: fileName,
             Body: xmlContent,
             ContentType: 'application/xml'
         }).promise();
 
+        const xml = await s3Client.getObject({ Bucket: bucketName, Key: fileName }).promise() as S3.GetObjectOutput;
+
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                message: `Successfully created sitemap file: ${fileName} in bucket: ${bucketName}`,
-                timestamp: currentDate,
-                urlCount: productURLs.length,
-                fileLocation: `s3://${bucketName}/${fileName}`
-            })
+            body: JSON.stringify({data: xml?.Body as S3.Body})
         };
 
     } catch (error) {
