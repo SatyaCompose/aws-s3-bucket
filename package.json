@@ -12,9 +12,11 @@
     "debug-invoke": "npm run build && NODE_OPTIONS='--inspect' serverless invoke local --function createXml"
   },
   "dependencies": {
+    "@commercetools/frontend-sdk": "^1.7.0",
     "@commercetools/platform-sdk": "^8.9.0",
     "@commercetools/sdk-client-v2": "^3.0.0",
     "aws-sdk": "^2.1483.0",
+    "axios": "^1.9.0",
     "xmlbuilder": "^15.1.1"
   },
   "devDependencies": {
@@ -30,7 +32,7 @@
     "serverless-esbuild": "^1.55.0",
     "serverless-plugin-typescript": "^2.1.5",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.8.3"
   },
   "author": "",
   "license": "ISC"

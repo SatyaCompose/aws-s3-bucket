@@ -27,11 +27,13 @@
         "esModuleInterop": true,
         "allowJs": true,
         "resolveJsonModule": true,
-        "baseUrl": "./"
+        "baseUrl": "./",
+        "skipLibCheck": true
     },
     "include": [
         "*.ts",
-        "helper/**/*.ts"
+        "helper/**/*.ts",
+        "types/**/*.ts",
     ],
     "exclude": [
         "node_modules",
