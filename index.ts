@@ -130,10 +130,9 @@ const createCategoriesXML = async (s3Client: S3, categoriesList: any, bucketName
             const currentDate = Date.now();
 
             const categorySlug = category.slug.startsWith('/') ? category.slug : `/${category.slug}`;
-
-            const lastmod = category?.lastModifiedAt?.toISOString()?.split('T')?.[0]
-                ? category?.lastModifiedAt?.toISOString()?.split('T')?.[0]
-                : currentDate;
+            const lastmod = category?.lastModifiedAt
+                ? category?.lastModifiedAt?.split('T')?.[0]
+                : category?.lastModifiedAt;
 
             const urlElement = root.ele('url');
             urlElement.ele('loc', `${process.env.WEB_URL}${categorySlug}`);
