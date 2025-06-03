@@ -107,7 +107,6 @@ export const buildSitemapResponseForCTCategories = async (categories: CategoryDa
                     }
                 }
             }).execute().catch((err: any) => {
-                console.warn(`Error fetching category ${category.id}`, err.message);
                 return null;
             })
         )

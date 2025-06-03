@@ -23,10 +23,14 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
         const productXML = await createProductXML(s3Client, productURLs, bucketName);
         const categorysXML = await createCategoriesXML(s3Client, categoriesList, bucketName);
         const contentPagesXML = await createContentPagesXML(s3Client, contentPages, bucketName);
-        console.log("CONTENT PAGES", contentPages)
+
         return {
             statusCode: 200,
-            body: JSON.stringify({})
+            body: JSON.stringify({
+                productXML,
+                categorysXML,
+                contentPagesXML
+            })
         };
 
     } catch (error) {
@@ -117,7 +121,6 @@ const createCategoriesXML = async (s3Client: S3, categoriesList: any, bucketName
         categoriesList.forEach((category: any) => {
             if (!category.productCount || category.productCount <= 0) {
                 skippedNoProducts++;
-                console.log(`Skipping category with no products: ${category.slug}`);
                 return;
             }
 
@@ -128,8 +131,8 @@ const createCategoriesXML = async (s3Client: S3, categoriesList: any, bucketName
 
             const categorySlug = category.slug.startsWith('/') ? category.slug : `/${category.slug}`;
 
-            const lastmod = category.lastModifiedAt
-                ? new Date(category.lastModifiedAt).toISOString().split('T')[0]
+            const lastmod = category?.lastModifiedAt?.toISOString()?.split('T')?.[0]
+                ? category?.lastModifiedAt?.toISOString()?.split('T')?.[0]
                 : currentDate;
 
             const urlElement = root.ele('url');

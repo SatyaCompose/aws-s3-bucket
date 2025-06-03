@@ -18,7 +18,6 @@ const createLimitQuery = (limit: number, filterQuery: string, offset: number): s
     if (filterQuery) {
         recipeListQuery += `${filterQuery}`;
     }
-    console.log("STRING", recipeListQuery)
     return recipeListQuery;
 }
 
@@ -59,7 +58,6 @@ export const getAllRecipesQueryString = async (body: RecipeListBody, pageSize: n
 
         return await getAllRecipesBuilderQuery(page, pageSize, filterQuery) as string[];
     } catch (error) {
-        console.error('Error in getAllRecipesQueryString:', error);
         return [];
     }
 };
@@ -70,12 +68,10 @@ const getAllRecipesBuilderQuery = async (page: number, pageSize: number, filterQ
         // For each page, we want to get exactly pageSize items
         const limit = pageSize;
         const offset = (page - 1) * pageSize;
-        console.log("****************** page::", page, "pageSize::", pageSize, "limit::", limit, "offset::", offset);
         const query = createLimitQuery(limit, filterQuery, offset);
         recipeListQueryArray.push(query);
         return recipeListQueryArray;
     } catch (err) {
-        console.error('ERROR in getAllRecipesBuilderQuery:', err);
         return [];
     }
 };

@@ -43,6 +43,7 @@ export interface RecipeDetails {
     ogDescription?: string;
     recipeImageFile?: string;
     recipeTipTitle?: string;
+    lastModifiedAt?: string;
 }
 
 export interface Ingredient {
@@ -69,3 +70,5 @@ export interface BuilderResult {
     lastUpdated?: number;
     data?: RecipeDetails;
 }
+
+export interface RecipeSitemapList { slug: string; lastModifiedAt: string; }

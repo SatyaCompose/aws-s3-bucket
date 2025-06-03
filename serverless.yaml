@@ -20,9 +20,10 @@ provider:
     S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
     FRONTASTIC_HOST: ${env:FRONTASTIC_HOST}
     WEB_URL: ${env:WEB_URL}
-    EXT_BUILD_ID: ${env:EXT_BUILD_ID}
     BUILDER_REST_URL: ${env:BUILDER_REST_URL}
     BUILDER_APIKEY: ${env:BUILDER_APIKEY}
+    EXCLUDE_PATHS: ${env:EXCLUDE_PATHS}
+    EXCLUDE_FOLDER_PATHS: ${env:EXCLUDE_FOLDER_PATHS}
 
   iam:
     role:
@@ -33,7 +34,7 @@ provider:
           Resource: arn:aws:s3:::${self:custom.bucketName}/*
 
 custom:
-  bucketName: satya-practise-bucket
+  bucketName: ${env:S3_BUCKET_NAME}
   dotenv:
     path: .env
 

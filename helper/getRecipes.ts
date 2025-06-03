@@ -1,59 +1,57 @@
 import axios from "axios";
-import { BuilderResult, RecipeDetails } from "types/recipes.js";
+import { BuilderResult, RecipeDetails, RecipeSitemapList } from "types/recipes.js";
 import { getAllRecipesQueryString } from "./recipesFilterQuery.js";
 
-export const getAllRecipes= async () => {
+export const getAllRecipes = async (): Promise<RecipeSitemapList[] | { statusCode: number; body: string }> => {
     try {
         const pageSize = 100;
-        const batchSize = 5; // Number of pages to fetch in parallel
-        let allData: any[] = [];
-        let currentBatch = 1;
-        let hasMore = true;
+        const batchSize = 5;
 
-        while (hasMore) {
-            // Create promises for current batch of pages
-            const batchPromises = Array.from({ length: batchSize }, async (_, i) => {
-                const page = (currentBatch - 1) * batchSize + i + 1;
-                console.log("****************** page::", page)
-                const query = await getAllRecipesQueryString({ page, pageSize }, pageSize);
-                return await (
-                    query?.[0] ? getRecipesForPLP(query[0]) : Promise.resolve([]));
-            });
+        const recipePromises = new Promise<RecipeSitemapList[]>((resolve, reject) => {
+            (async () => {
+                try {
+                    let allData: RecipeDetails[] = [];
+                    let hasMore = true;
+                    let currentBatch = 1;
 
-            // Fetch current batch in parallel
-            const batchResults = await Promise.all(batchPromises);
-            const batchData = batchResults.flat();
-            allData = [...allData, ...batchData];
+                    while (hasMore) {
+                        // Create promises for current batch of pages
+                        const batchPromises = Array.from({ length: batchSize }, (_, i) => {
+                            const page = (currentBatch - 1) * batchSize + i + 1;
+                            return getAllRecipesQueryString({ page, pageSize }, pageSize)
+                                .then((query: string[] | undefined): Promise<RecipeDetails[]> =>
+                                    query?.[0]
+                                        ? getRecipesForPLP(query[0])
+                                        : Promise.resolve([])
+                                );
+                        });
 
-            console.log("****************** allData::", allData.length);
-            console.log("****************** batchData::", batchData.length);
-            // If we got less than expected (batchSize * pageSize), we have all recipes
-            hasMore = batchData.length === batchSize * pageSize;
-            console.log("****************** hasMore::", hasMore)
-            currentBatch++;
-        }
+                        const batchResults = await Promise.all(batchPromises);
+                        const batchData = batchResults.flat();
+                        allData = [...allData, ...batchData];
 
-        // Transform the data to only include required fields
-        const simplifiedData = allData.map(recipe => ({
-            title: recipe.recipeTitle,
-            url: recipe.url,
-            createdDate: recipe.recordCreatedDate ? new Date(recipe.recordCreatedDate).toISOString().split('T')[0] : null,
-            prepTimeInMinutes: recipe.prepTimeInMinutes,
-            cookingTimeInMinutes: recipe.cookingTimeInMinutes
-        }));
+                        hasMore = batchData.length === batchSize * pageSize;
+                        currentBatch++;
+                    }
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                total: simplifiedData.length,
-                data: simplifiedData,
-            }),
-        };
+                    const simplifiedData = allData.map((recipe: RecipeDetails) => ({
+                        slug: recipe.url,
+                        lastModifiedAt: recipe.lastModifiedAt || null
+                    })) as RecipeSitemapList[];
+
+                    resolve(simplifiedData);
+                } catch (error: any) {
+                    resolve([]);
+                }
+            })();
+        });
+        const recipes = await recipePromises;
+        return recipes;
     } catch (err) {
         return {
             statusCode: 500,
             body: JSON.stringify(err),
-        }
+        };
     }
 };
 
@@ -64,13 +62,12 @@ export const getRecipesForPLP = async (filterQuery: string): Promise<RecipeDetai
         const response = await axios.get(url);
         const data = response?.data?.results?.map((data: BuilderResult) => {
             const mainData = data?.data;
-            const lastModifiedAt = new Date(Number(data?.lastUpdated )* 1000)
-            return { ...mainData, lastModifiedAt: lastModifiedAt.toISOString().split('T')[0] };
+            const lastModifiedAt = new Date(Number(data?.lastUpdated)).toISOString() as any;
+            return { ...mainData, lastModifiedAt: lastModifiedAt?.split('T')[0] };
         }) as RecipeDetails[];
 
-        return data as RecipeDetails[];
+        return data || [];
     } catch (err) {
-        console.log("Error at Recipie List...!", err);
-        return [] as RecipeDetails[]
+        return [];
     }
-}
+};
