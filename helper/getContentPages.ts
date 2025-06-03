@@ -11,12 +11,12 @@ export const getAllContentPages = async () => {
             method: 'POST',
             maxBodyLength: Infinity,
             url: `${process.env.FRONTASTIC_HOST}/action/sitemaps/content`,
-            headers: {
-                'accept': 'application/json',
-                'content-type': 'application/json',
-                'cofe-custom-configuration': '',
-                'commercetools-frontend-extension-version': 'devsatya',
-            },
+            // headers: {
+            //     'accept': 'application/json',
+            //     'content-type': 'application/json',
+            //     'cofe-custom-configuration': '',
+            //     'commercetools-frontend-extension-version': 'devsatya',
+            // },
             data: payload ?? {}
         };
         const contentPages = await axios.request(config)
